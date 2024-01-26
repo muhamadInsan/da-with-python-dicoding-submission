@@ -4,8 +4,8 @@ import seaborn as sns
 import streamlit as st
 # from babel.numbers import format_currency
 import plotly.express as px
+import posixpath
 from pathlib import Path
-
 sns.set(style='dark')
 
 st.set_page_config(
@@ -28,7 +28,10 @@ all_data = pd.read_csv(Path.cwd().joinpath('dashboard/data/all_dataset.csv'),
 st.title("diCommerce Dashboard")
 
 with st.sidebar:
-    st.image(Path.cwd().joinpath('dashboard/img/logo.png'), width=280)
+    path_file = "img/logo.png"
+
+    # st.image(Path.cwd().joinpath('dashboard/data/all_dataset.csv'), width=280)
+    st.image(posixpath.abspath(path_file), width=280)
     st.write("This code will be printed to the sidebar.")
     
 
