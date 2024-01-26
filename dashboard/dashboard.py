@@ -19,7 +19,7 @@ st.set_page_config(
 )
 
 # Load Data 
-all_data = pd.read_csv('../data/all_dataset.csv',
+all_data = pd.read_csv('data/all_dataset.csv',
                        sep=',',
                        parse_dates=['order_purchase_timestamp'])
 
