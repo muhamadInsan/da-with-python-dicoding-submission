@@ -21,13 +21,15 @@ st.set_page_config(
 )
 
 # Load Data 
-all_data = pd.read_csv(posixpath.abspath('data/all_dataset.csv'),
+all_data = pd.read_csv(posixpath.abspath('dashboad/data/all_dataset.csv'),
                        sep=',',
                        parse_dates=['order_purchase_timestamp'])
 
 st.title("diCommerce Dashboard")
 
 with st.sidebar:
+
+    # path_file = posixpath.abspath('img/logo.png')
 
     st.image('img/logo.png', width=280)
     # st.image(posixpath.abspath('img/logo.png'), width=280)
