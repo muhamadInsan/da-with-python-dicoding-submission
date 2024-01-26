@@ -4,6 +4,8 @@ import seaborn as sns
 import streamlit as st
 # from babel.numbers import format_currency
 import plotly.express as px
+from pathlib import Path
+
 sns.set(style='dark')
 
 st.set_page_config(
@@ -19,7 +21,7 @@ st.set_page_config(
 )
 
 # Load Data 
-all_data = pd.read_csv('/data/all_dataset.csv',
+all_data = pd.read_csv(Path.cwd().joinpath('dashboard/data/all_dataset.csv'),
                        sep=',',
                        parse_dates=['order_purchase_timestamp'])
 
