@@ -28,7 +28,7 @@ all_data = pd.read_csv(Path.cwd().joinpath('dashboard/data/all_dataset.csv'),
 st.title("diCommerce Dashboard")
 
 with st.sidebar:
-    st.image('img/logo.png', width=280)
+    st.image(Path.cwd().joinpath('dashboard/img/logo.png'), width=280)
     st.write("This code will be printed to the sidebar.")
     
 
