@@ -31,7 +31,7 @@ with st.sidebar:
 
     # path_file = posixpath.abspath('img/logo.png')
 
-    st.image('img/logo.png', width=280)
+    st.image(posixpath.abspath('img/logo.png'), width=280)
     # st.image(posixpath.abspath('img/logo.png'), width=280)
     st.write("This code will be printed to the sidebar.")
     
