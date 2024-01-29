@@ -30,12 +30,13 @@ all_data = pd.read_csv(posixpath.abspath('dashboard/data/all_dataset.csv'),
 
 st.title("diCommerce Dashboard")
 
+min_date = all_data["order_purchase_timestamp"].min()
+max_date = all_data["order_purchase_timestamp"].max()
+
 with st.sidebar:
 
-    # st.image(posixpath.abspath('dashboard/img/logo.png'), width=280)
+    st.image(posixpath.abspath('dashboard/img/logo.png'), width=280)
 
-    min_date = all_data["order_purchase_timestamp"].min()
-    max_date = all_data["order_purchase_timestamp"].max()
     start_date, end_date = st.date_input(
         label='Rentang Waktu',min_value=min_date,
         max_value=max_date,
