@@ -24,12 +24,15 @@ st.set_page_config(
 all_data = pd.read_csv(posixpath.abspath('dashboard/data/all_dataset.csv'),
                        sep=',',
                        parse_dates=['order_purchase_timestamp'])
+# all_data = pd.read_csv('data/all_dataset.csv',
+#                        sep=',',
+#                        parse_dates=['order_purchase_timestamp'])
 
 st.title("diCommerce Dashboard")
 
 with st.sidebar:
 
-    st.image(posixpath.abspath('dashboard/img/logo.png'), width=280)
+    # st.image(posixpath.abspath('dashboard/img/logo.png'), width=280)
 
     min_date = all_data["order_purchase_timestamp"].min()
     max_date = all_data["order_purchase_timestamp"].max()
