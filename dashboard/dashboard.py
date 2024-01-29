@@ -2,7 +2,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
 import streamlit as st
-# from babel.numbers import format_currency
+from handler import rfm_analysis, cust_by_states, cust_by_cities, top_product_cat, product_review, status_order
 import plotly.express as px
 import posixpath
 from pathlib import Path
@@ -29,31 +29,24 @@ st.title("diCommerce Dashboard")
 
 with st.sidebar:
 
-    # path_file = posixpath.abspath('img/logo.png')
-
     st.image(posixpath.abspath('dashboard/img/logo.png'), width=280)
-    # st.image(posixpath.abspath('img/logo.png'), width=280)
-    st.write("This code will be printed to the sidebar.")
-    
 
+    min_date = all_data["order_purchase_timestamp"].min()
+    max_date = all_data["order_purchase_timestamp"].max()
+    start_date, end_date = st.date_input(
+        label='Rentang Waktu',min_value=min_date,
+        max_value=max_date,
+        value=[min_date, max_date]
+    )
+
+main_df = all_data[(all_data["order_purchase_timestamp"] >= str(start_date)) & 
+                (all_data["order_purchase_timestamp"] <= str(end_date))]
+    
 tab1, tab2, tab3 = st.tabs(["Customer", "Product", "Order"])
 
 with tab1:
 
     # Figure Product RFM
-    df = all_data.groupby(by='customer_id', as_index=False).agg({
-        'order_purchase_timestamp':'max',
-        'order_id':'count',
-        'total_price':'sum'
-    })
-
-    df.columns = ["customer_id", "max_order_timestamp", "frequency", "monetary"]
-    df["max_order_timestamp"] = df.max_order_timestamp.dt.date
-    rcnt_date = all_data.order_purchase_timestamp.dt.date.max()
-    df["recency"] = df["max_order_timestamp"].apply(lambda x: (rcnt_date - x).days)
-    df['cust_id_short'] = df.customer_id.str.slice(start=25)
-
-    df.drop("max_order_timestamp", axis=1, inplace=True)
 
     st.subheader('Best Customer Based on RFM Parameters (customer_id)')
 
@@ -62,7 +55,7 @@ with tab1:
     with col1:
         
         fig_recency = px.bar(
-            df.sort_values(by="recency", ascending=True).head(), 
+            rfm_analysis(main_df).sort_values(by="recency", ascending=True).head(), 
             y='recency',
             x='cust_id_short',
             title='By Recency (days)'
@@ -74,7 +67,7 @@ with tab1:
     with col2:
         
         fig_frequency = px.bar(
-            df.sort_values(by="frequency", ascending=False).head(), 
+            rfm_analysis(main_df).sort_values(by="frequency", ascending=False).head(), 
             y='frequency',
             x='cust_id_short',
             title='By Frequency'
@@ -86,7 +79,7 @@ with tab1:
     with col3:
         
         fig_monetary = px.bar(
-            df.sort_values(by="monetary", ascending=False).head(), 
+            rfm_analysis(main_df).sort_values(by="monetary", ascending=False).head(), 
             y='monetary',
             x='cust_id_short',
             title='By Monetary'
@@ -95,14 +88,9 @@ with tab1:
 
         st.plotly_chart(fig_monetary, theme="streamlit", use_container_width=True)
 
-    # cust by states
-    custby_states = all_data.groupby(
-                        by=['customer_state']).customer_id.nunique().sort_values(
-                            ascending=False).reset_index().rename(
-                                columns={'customer_id':'jml_cust'})
-
+    # Cust by states
     fig_cust_by_states = px.bar(
-        custby_states, 
+        cust_by_states(main_df), 
         x='customer_state', 
         y='jml_cust',
         title='States With The Largest Customer' )
@@ -111,12 +99,8 @@ with tab1:
     st.plotly_chart(fig_cust_by_states, theme="streamlit", use_container_width=True)
 
     # Cust by cities
-    by_city_states = all_data.loc[:,['customer_city','customer_id']].groupby(by=['customer_city']).agg({'customer_id':'count'}).sort_values(
-        by='customer_id', 
-        ascending=False).reset_index().rename(columns={'customer_id':'jml_cust'})
-
     fig_cust_by_cities = px.bar(
-        by_city_states.head(10), 
+        cust_by_cities(main_df).head(10), 
         x='jml_cust',
         y='customer_city',
         title='Top 10 Cities With The Largest Customer',
@@ -131,12 +115,8 @@ with tab2:
 
     # Tab 2 Product
     # Top 10 product category
-    top_product_cat = all_data.groupby(by='product_category_name_english').agg({
-        'order_id':'count'
-    }).sort_values(by='order_id', ascending=False).reset_index().rename(columns={'order_id':'jumlah'})
-
     fig_top_product_cat = px.bar(
-        top_product_cat.head(10), 
+        top_product_cat(main_df).head(10), 
         x='jumlah',
         y='product_category_name_english',
         title='Top 10 Products With The Largest Order',
@@ -151,22 +131,11 @@ with tab2:
         st.plotly_chart(fig_top_product_cat, theme="streamlit", use_container_width=True)
 
     with col2:
-        st.dataframe(top_product_cat.iloc[11:,], hide_index=False)
+        st.dataframe(top_product_cat(main_df).iloc[11:,], hide_index=False)
 
 
     # Figure Product Review 
-    product = all_data[['review_id',
-                        'review_score', 
-                        'review_comment_title', 
-                        'review_comment_message',
-                        'review_creation_date',
-                        'product_category_name_english']]
-
-    product_review = product.groupby(by=['review_score','product_category_name_english']).agg({'review_id':'count'}).sort_values(
-        by='review_id', 
-        ascending=False).rename(columns={'review_id':'jumlah'}).reset_index()
-        
-    fig_product_review = px.treemap(product_review, 
+    fig_product_review = px.treemap(product_review(main_df), 
                                     path=[px.Constant("Product Score Review"), 'review_score', 'product_category_name_english'], 
                                     values='jumlah', 
                                     title='The Best Category Product Review')
@@ -177,12 +146,8 @@ with tab2:
     st.plotly_chart(fig_product_review, use_container_width=True)
 
 with tab3:
-    order = all_data[['order_id', 'customer_id', 'order_status']]
-    status_order = order.groupby(by='order_status').agg({'order_id':'count'}).sort_values(
-        by='order_id', 
-        ascending=False).rename(columns={'order_id':'jml'}).reset_index()
-    
-    fig_status_order = px.pie(status_order, 
+        
+    fig_status_order = px.pie(status_order(main_df), 
                               values='jml', 
                               names='order_status', 
                               color_discrete_sequence=px.colors.sequential.RdBu,
