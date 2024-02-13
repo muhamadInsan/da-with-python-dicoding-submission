@@ -4,7 +4,6 @@ import streamlit as st
 import handler
 import plotly.express as px
 import os
-import clickhouse_connect
 from dotenv import load_dotenv
 
 sns.set_theme(style='dark')
@@ -17,21 +16,11 @@ st.set_page_config(
 )
 
 # Load Data 
-@st.cache_data
-def load_data():
-    load_dotenv()
-    client = clickhouse_connect.get_client(host=os.getenv('DB_HOST'),
-                                           port=os.getenv('DB_PORT'),
-                                           username=os.getenv('DB_USER'),
-                                           password=os.getenv('DB_PASSWORD'))
-    df = client.query_df('select * from dicommerce')
-    return df
-    # return pd.read_csv(os.path.abspath(path_file), sep=',', parse_dates=['order_date'])
+all_data = handler.load_data(handler.connect_db, 'select * from dicommerce')
 
 # path_file = 'dashboard/data/all_dataset.csv' # path prod
 # path_file = 'data/all_dataset.csv' # path local
 
-all_data = load_data()
 
 st.title("diCommerce Dashboard")
 

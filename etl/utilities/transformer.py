@@ -1,15 +1,22 @@
 import pandas as pd
 
 
-def transform(customers, orders, order_items, order_payments, order_reviews, products, product_cat_english, sellers):
-    # add colum total price
+def order_items_trans(order_items): 
     order_items['total_price'] = order_items['order_item_id'] * order_items['price']
+    
+    return order_items 
 
-    # add colum delivery time
+def delivery_time_orders(orders):
     orders['delivery_time'] = (orders['order_delivered_customer_date'] - orders['order_approved_at']).dt.days
 
-    customers['cust_status'] = ['Active' if x == True else 'Inactive' for x in orders.customer_id.isin(customers.customer_id.to_list())]
+    return orders
 
+def cust_active_status(customers:pd.DataFrame, orders:pd.DataFrame) -> pd.DataFrame:
+    customers['cust_status'] = ['Active' if x == True else 'Inactive' for x in orders.customer_id.isin(customers.customer_id.to_list())]
+    
+    return customers
+    
+def transform(customers, orders, order_items, order_payments, order_reviews, products, product_cat_english, sellers):
     # merger order and order item 
     orders_items = pd.merge(left=orders, right=order_items, on='order_id', how='inner')
         

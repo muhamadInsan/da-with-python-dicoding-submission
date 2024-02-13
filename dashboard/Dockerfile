@@ -1,11 +1,11 @@
-FROM python:3.10.0
+FROM python:3.10-slim
 
 WORKDIR /dashboard
 
 COPY . /dashboard/
 
-RUN python -m pip install -U pip
-RUN pip install -r requirements.txt
+RUN python -m pip install -U pip &&\ 
+    pip install -r requirements.txt
 
 EXPOSE 8501
 

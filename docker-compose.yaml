@@ -1,11 +1,13 @@
-version: '3'
-name: my_pipeline1
+version: '3.9'
+name: my_pipeline
 
 services:
   db-clickhouse:
     image: clickhouse/clickhouse-server:latest
     ports:
       - 8123:8123
+    volumes:
+      - my-data:/var/lib/clickhouse
     environment:
       - CLICKHOUSE_PASSWORD=${DB_PASSWORD}
       - CLICKHOUSE_USER=${DB_USER}
@@ -31,5 +33,5 @@ services:
     depends_on:
       - etl
 
-
-
+volumes:
+  my-data:

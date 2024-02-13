@@ -1,3 +1,26 @@
+import clickhouse_connect
+import os
+import streamlit as st
+from dotenv import load_dotenv
+
+
+def connect_db():
+    '''
+    Get client houseclick database
+    '''
+    load_dotenv()
+    client = clickhouse_connect.get_client(host=os.getenv('DB_HOST'),
+                                           port=os.getenv('DB_PORT'),
+                                           username=os.getenv('DB_USER'),
+                                           password=os.getenv('DB_PASSWORD'))
+    
+    return client
+
+# @st.cache_data
+def load_data(ch_client):
+    # db_client = connect_db()
+    return ch_client.query_df('select * from dicommerce')
+
 def rfm_analysis(df):
     df1 = df.groupby(by='customer_id', as_index=False).agg({
             'order_purchase_timestamp':'max',
