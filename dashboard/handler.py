@@ -19,7 +19,7 @@ def rfm_analysis(df):
 def cust_by_states(df):
     return df.groupby(by=['customer_state']).customer_id.nunique().sort_values(
                 ascending=False).reset_index().rename(
-                    columns={'customer_id':'jml_cust'})
+                    columns={'customer_id':'jumlah'})
 
 def cust_by_cities(df):
     return df.loc[:,['customer_city','customer_id']].groupby(by=['customer_city']).agg({'customer_id':'count'}).sort_values(
@@ -27,15 +27,23 @@ def cust_by_cities(df):
             ascending=False).reset_index().rename(columns={'customer_id':'jml_cust'})
 
 def top_product_cat(df):
-    return df.groupby(by='product_category_name_english').agg({'order_id':'count'}).sort_values(by='order_id',
-                                                                                                ascending=False).reset_index().rename(columns={'order_id':'jumlah'})
+    return df.groupby(by='product_category_name_english').agg({'order_id':'count'}).sort_values(
+        by='order_id',
+        ascending=False).reset_index().rename(columns={'order_id':'jumlah'})
 
 def product_review(df):
-    return df.groupby(by=['review_score','product_category_name_english']).agg({'review_id':'count'}).sort_values(
-        by='review_id', 
-        ascending=False).rename(columns={'review_id':'jumlah'}).reset_index()
+    return df.groupby(by=['review_score',
+                          'product_category_name_english']).agg({'review_id':'count'}).sort_values(
+                              by='review_id',
+                              ascending=False).rename(columns={'review_id':'jumlah'}).reset_index()
 
 def status_order(df):
     return df.groupby(by='order_status').agg({'order_id':'count'}).sort_values(
         by='order_id', 
         ascending=False).rename(columns={'order_id':'jml'}).reset_index()
+
+def seller_cities(df):
+    return df.seller_city.value_counts().to_frame().reset_index().rename(columns={'count':'jumlah'})
+
+def seller_states(df):
+    return df.seller_state.value_counts().to_frame().reset_index().rename(columns={'count':'jumlah'})

@@ -2,22 +2,18 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
 import streamlit as st
-from handler import rfm_analysis, cust_by_states, cust_by_cities, top_product_cat, product_review, status_order
+from handler import rfm_analysis, cust_by_states, cust_by_cities, top_product_cat, product_review, status_order, seller_cities, seller_states
 import plotly.express as px
 import posixpath
 from pathlib import Path
-sns.set(style='dark')
+
+sns.set_theme(style='dark')
 
 st.set_page_config(
     page_title="Ex-stream-ly Cool App",
     # page_icon="🧊",
     layout="wide",
     initial_sidebar_state="expanded",
-    menu_items={
-        'Get Help': 'https://www.extremelycoolapp.com/help',
-        'Report a bug': "https://www.extremelycoolapp.com/bug",
-        'About': "# This is a header. This is an *extremely* cool app!"
-    }
 )
 
 # Load Data 
@@ -46,18 +42,14 @@ with st.sidebar:
 main_df = all_data[(all_data["order_purchase_timestamp"] >= str(start_date)) & 
                 (all_data["order_purchase_timestamp"] <= str(end_date))]
     
-tab1, tab2, tab3 = st.tabs(["Customer", "Product", "Order"])
+tab_customer, tab_product, tab_order = st.tabs(["Customer", "Product", "Order"])
 
-with tab1:
-
+with tab_customer: # Customers
     # Figure Product RFM
-
     st.subheader('Best Customer Based on RFM Parameters (customer_id)')
 
-    col1, col2, col3 = st.columns(3, gap='medium')
-
-    with col1:
-        
+    row1_col1, row1_col2, row1_col3 = st.columns(3, gap='medium')
+    with row1_col1:
         fig_recency = px.bar(
             rfm_analysis(main_df).sort_values(by="recency", ascending=True).head(), 
             y='recency',
@@ -65,11 +57,10 @@ with tab1:
             title='By Recency (days)'
             )
         fig_recency.show()
-
         st.plotly_chart(fig_recency, theme="streamlit", use_container_width=True)
 
-    with col2:
-        
+
+    with row1_col2:
         fig_frequency = px.bar(
             rfm_analysis(main_df).sort_values(by="frequency", ascending=False).head(), 
             y='frequency',
@@ -77,11 +68,10 @@ with tab1:
             title='By Frequency'
             )
         fig_frequency.show()
-
         st.plotly_chart(fig_frequency, theme="streamlit", use_container_width=True)
 
-    with col3:
-        
+
+    with row1_col3:
         fig_monetary = px.bar(
             rfm_analysis(main_df).sort_values(by="monetary", ascending=False).head(), 
             y='monetary',
@@ -89,35 +79,60 @@ with tab1:
             title='By Monetary'
             )
         fig_monetary.show()
-
         st.plotly_chart(fig_monetary, theme="streamlit", use_container_width=True)
 
-    # Cust by states
-    fig_cust_by_states = px.bar(
-        cust_by_states(main_df), 
-        x='customer_state', 
-        y='jml_cust',
-        title='States With The Largest Customer' )
-    fig_cust_by_states.show()
+            
+    row2_col1, row2_col2 = st.columns(2, gap='medium')
+    with row2_col1:
+        # Cust by states
+        fig_cust_by_states = px.bar(
+            cust_by_states(main_df).head(20), 
+            x='customer_state', 
+            y='jumlah',
+            title='Top 20 States With The Largest Customers' )
+        fig_cust_by_states.show()
+        st.plotly_chart(fig_cust_by_states, theme="streamlit", use_container_width=True)
 
-    st.plotly_chart(fig_cust_by_states, theme="streamlit", use_container_width=True)
 
+    with row2_col2:
+        fig_seller_by_states = px.bar(
+            seller_states(main_df).head(20), 
+            x='seller_state', 
+            y='jumlah',
+            title='Top 20 States With The Largest Sellers' )
+        fig_seller_by_states.show()
+        st.plotly_chart(fig_seller_by_states, theme="streamlit", use_container_width=True)
+
+
+    row3_col1, row3_col2 = st.columns(2, gap='medium')
     # Cust by cities
-    fig_cust_by_cities = px.bar(
-        cust_by_cities(main_df).head(10), 
-        x='jml_cust',
-        y='customer_city',
-        title='Top 10 Cities With The Largest Customer',
-        orientation='h',
-        )
-    fig_cust_by_cities.update_layout(yaxis={'categoryorder':'total ascending'})
-    fig_cust_by_cities.show()
+    with row3_col1:
+        fig_cust_by_cities = px.bar(
+            cust_by_cities(main_df).head(10), 
+            x='jml_cust',
+            y='customer_city',
+            title='Top 10 Cities With The Largest Customer',
+            orientation='h',
+            )
+        fig_cust_by_cities.update_layout(yaxis={'categoryorder':'total ascending'})
+        fig_cust_by_cities.show()
+        st.plotly_chart(fig_cust_by_cities, theme="streamlit", use_container_width=True)
+    
 
-    st.plotly_chart(fig_cust_by_cities, theme="streamlit", use_container_width=True)
+    with row3_col2:
+        fig_seller_cities = px.bar(
+            seller_cities(main_df).head(10), 
+            x='jumlah',
+            y='seller_city',
+            title='Top 10 Cities With The Largest Sellers',
+            orientation='h',
+            )
+        fig_seller_cities.update_layout(yaxis={'categoryorder':'total ascending'})
+        fig_seller_cities.show()
+        st.plotly_chart(fig_seller_cities, theme="streamlit", use_container_width=True)
 
-with tab2:
 
-    # Tab 2 Product
+with tab_product: # Products
     # Top 10 product category
     fig_top_product_cat = px.bar(
         top_product_cat(main_df).head(10), 
@@ -129,10 +144,11 @@ with tab2:
     fig_top_product_cat.update_layout(yaxis={'categoryorder':'total ascending'})
     fig_top_product_cat.show()
 
-    col1, col2 = st.columns([2,1], gap='medium')
 
+    col1, col2 = st.columns([2,1], gap='medium')
     with col1:
         st.plotly_chart(fig_top_product_cat, theme="streamlit", use_container_width=True)
+
 
     with col2:
         st.dataframe(top_product_cat(main_df).iloc[11:,], hide_index=False)
@@ -146,16 +162,14 @@ with tab2:
     fig_product_review.update_traces(root_color="grey")
     fig_product_review.update_layout(margin = dict(t=50, l=25, r=25, b=25))
     fig_product_review.show()
-
     st.plotly_chart(fig_product_review, use_container_width=True)
 
-with tab3:
-        
+
+with tab_order: # Orders    
     fig_status_order = px.pie(status_order(main_df), 
                               values='jml', 
                               names='order_status', 
                               color_discrete_sequence=px.colors.sequential.RdBu,
                               title='Order Status')
     fig_status_order.show()
-
     st.plotly_chart(fig_status_order, use_container_width=True)
