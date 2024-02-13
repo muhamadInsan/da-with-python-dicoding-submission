@@ -5,7 +5,7 @@ import streamlit as st
 from handler import rfm_analysis, cust_by_states, cust_by_cities, top_product_cat, product_review, status_order, seller_cities, seller_states, amount_of_order_status
 import plotly.express as px
 import posixpath
-from pathlib import Path
+import os
 
 sns.set_theme(style='dark')
 
@@ -17,13 +17,17 @@ st.set_page_config(
 )
 
 # Load Data 
+@st.cache_data
+def load_data(path_file):
+    return pd.read_csv(os.path.abspath(path_file), sep=',', parse_dates=['order_purchase_timestamp'])
+
+path_file = 'data/all_dataset.csv'
+
 # all_data = pd.read_csv(posixpath.abspath('dashboard/data/all_dataset.csv'),
 #                        sep=',',
 #                        parse_dates=['order_purchase_timestamp'])
 
-all_data = pd.read_csv('data/all_dataset.csv',
-                       sep=',',
-                       parse_dates=['order_purchase_timestamp'])
+all_data = load_data(path_file)
 
 st.title("diCommerce Dashboard")
 
@@ -32,7 +36,8 @@ max_date = all_data["order_purchase_timestamp"].max()
 
 with st.sidebar:
 
-    st.image(posixpath.abspath('dashboard/img/logo.png'), width=280)
+    # st.image(posixpath.abspath('dashboard/img/logo.png'), width=280)
+    st.image(os.path.abspath('img/logo.png'), width=280)
 
     start_date, end_date = st.date_input(
         label='Rentang Waktu',min_value=min_date,
@@ -53,7 +58,7 @@ with tab_customer: # Customers
     row1_col1, row1_col2, row1_col3 = st.columns(3, gap='medium')
     with row1_col1:
         fig_recency = px.bar(
-            rfm_analysis(main_df).sort_values(by="recency", ascending=True).head(), 
+            rfm_analysis(all_data).sort_values(by="recency", ascending=True).head(), 
             y='recency',
             x='cust_id_short',
             title='By Recency (days)')
