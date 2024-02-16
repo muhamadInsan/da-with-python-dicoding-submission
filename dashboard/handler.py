@@ -47,3 +47,13 @@ def seller_cities(df):
 
 def seller_states(df):
     return df.seller_state.value_counts().to_frame().reset_index().rename(columns={'count':'jumlah'})
+
+def amount_of_order_status(df, status:list, year:int):
+    df['order_purch_month_year'] = df['order_purchase_timestamp'].dt.strftime('%m-%Y')
+    df['order_purch_year'] = df.loc[:,'order_purchase_timestamp'].dt.year
+
+    df2 = df.groupby(by=['order_status',
+                    'order_purch_month_year',
+                    'order_purch_year']).agg({'order_id':'count'}).reset_index().rename(columns={'order_id':'jumlah'})
+    
+    return df2[(df2.order_status.isin(status)) & (df2.order_purch_year == year)]
