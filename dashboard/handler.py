@@ -56,4 +56,4 @@ def amount_of_order_status(df, status:list, year:int):
                     'order_purch_month_year',
                     'order_purch_year']).agg({'order_id':'count'}).reset_index().rename(columns={'order_id':'jumlah'})
     
-    return df2[(df2.order_status.isin(status)) & (df2.order_purch_year == year)]
+    return df2[(df2.order_status.isin(status)) & (df2.order_purch_year == year)].sort_values(by='order_purch_month_year')
