@@ -17,13 +17,13 @@ st.set_page_config(
 )
 
 # Load Data 
-all_data = pd.read_csv(posixpath.abspath('dashboard/data/all_dataset.csv'),
-                       sep=',',
-                       parse_dates=['order_purchase_timestamp'])
-
-# all_data = pd.read_csv('data/all_dataset.csv',
+# all_data = pd.read_csv(posixpath.abspath('dashboard/data/all_dataset.csv'),
 #                        sep=',',
 #                        parse_dates=['order_purchase_timestamp'])
+
+all_data = pd.read_csv('data/all_dataset.csv',
+                       sep=',',
+                       parse_dates=['order_purchase_timestamp'])
 
 st.title("diCommerce Dashboard")
 
@@ -56,8 +56,7 @@ with tab_customer: # Customers
             rfm_analysis(main_df).sort_values(by="recency", ascending=True).head(), 
             y='recency',
             x='cust_id_short',
-            title='By Recency (days)'
-            )
+            title='By Recency (days)')
         st.plotly_chart(fig_recency, theme="streamlit", use_container_width=True)
 
 
