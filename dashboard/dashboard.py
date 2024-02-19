@@ -21,8 +21,8 @@ st.set_page_config(
 def load_data(path_file):
     return pd.read_csv(os.path.abspath(path_file), sep=',', parse_dates=['order_purchase_timestamp'])
 
-# path_file = 'dashboard/data/all_dataset.csv' # path prod
-path_file = 'data/all_dataset.csv' # path local
+path_file = 'dashboard/data/all_dataset.csv' # path prod
+# path_file = 'data/all_dataset.csv' # path local
 
 all_data = load_data(path_file)
 
