@@ -21,20 +21,17 @@ st.set_page_config(
 def load_data(path_file):
     return pd.read_csv(os.path.abspath(path_file), sep=',', parse_dates=['order_purchase_timestamp'])
 
-path_file = 'data/all_dataset.csv'
+path_file = 'dashboard/data/all_dataset.csv'
 
 # all_data = pd.read_csv(posixpath.abspath('dashboard/data/all_dataset.csv'),
+#                        sep=',',
+#                        parse_dates=['order_purchase_timestamp'])
+
+# all_data = pd.read_csv('data/all_dataset.csv',
 #                        sep=',',
 #                        parse_dates=['order_purchase_timestamp'])
 
 all_data = load_data(path_file)
-
-# all_data = pd.read_csv(posixpath.abspath('dashboard/data/all_dataset.csv'),
-#                        sep=',',
-#                        parse_dates=['order_purchase_timestamp'])
-# all_data = pd.read_csv('data/all_dataset.csv',
-#                        sep=',',
-#                        parse_dates=['order_purchase_timestamp'])
 
 st.title("diCommerce Dashboard")
 
@@ -44,7 +41,7 @@ max_date = all_data["order_purchase_timestamp"].max()
 with st.sidebar:
 
     # st.image(posixpath.abspath('dashboard/img/logo.png'), width=280)
-    st.image(os.path.abspath('img/logo.png'), width=280)
+    st.image('img/logo.png', width=280)
 
     start_date, end_date = st.date_input(
         label='Rentang Waktu',min_value=min_date,
