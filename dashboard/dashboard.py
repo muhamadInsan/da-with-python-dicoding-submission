@@ -29,6 +29,13 @@ path_file = 'data/all_dataset.csv'
 
 all_data = load_data(path_file)
 
+# all_data = pd.read_csv(posixpath.abspath('dashboard/data/all_dataset.csv'),
+#                        sep=',',
+#                        parse_dates=['order_purchase_timestamp'])
+# all_data = pd.read_csv('data/all_dataset.csv',
+#                        sep=',',
+#                        parse_dates=['order_purchase_timestamp'])
+
 st.title("diCommerce Dashboard")
 
 min_date = all_data["order_purchase_timestamp"].min()
