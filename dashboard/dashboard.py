@@ -33,7 +33,7 @@ max_date = all_data["order_purchase_timestamp"].max()
 
 with st.sidebar:
 
-    st.image(os.path.relpath('img/logo.png'), width=280)
+    st.image(os.path.abspath('dashboard/img/logo.png'), width=280)
     # st.image('img/logo.png', width=280)
 
     start_date, end_date = st.date_input(
