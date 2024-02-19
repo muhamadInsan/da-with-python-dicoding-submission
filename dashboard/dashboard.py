@@ -40,8 +40,8 @@ max_date = all_data["order_purchase_timestamp"].max()
 
 with st.sidebar:
 
-    # st.image(posixpath.abspath('dashboard/img/logo.png'), width=280)
-    st.image('img/logo.png', width=280)
+    st.image(posixpath.abspath('dashboard/img/logo.png'), width=280)
+    # st.image('img/logo.png', width=280)
 
     start_date, end_date = st.date_input(
         label='Rentang Waktu',min_value=min_date,
