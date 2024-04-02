@@ -1,11 +1,11 @@
 import pandas as pd
-import matplotlib.pyplot as plt
 import seaborn as sns
 import streamlit as st
-from handler import rfm_analysis, cust_by_states, cust_by_cities, top_product_cat, product_review, status_order, seller_cities, seller_states, amount_of_order_status
+import handler
 import plotly.express as px
-import posixpath
 import os
+import clickhouse_connect
+from dotenv import load_dotenv
 
 sns.set_theme(style='dark')
 
@@ -18,13 +18,20 @@ st.set_page_config(
 
 # Load Data 
 @st.cache_data
-def load_data(path_file):
-    return pd.read_csv(os.path.abspath(path_file), sep=',', parse_dates=['order_purchase_timestamp'])
+def load_data():
+    load_dotenv()
+    client = clickhouse_connect.get_client(host=os.getenv('DB_HOST'),
+                                           port=os.getenv('DB_PORT'),
+                                           username=os.getenv('DB_USER'),
+                                           password=os.getenv('DB_PASSWORD'))
+    df = client.query_df('select * from dicommerce')
+    return df
+    # return pd.read_csv(os.path.abspath(path_file), sep=',', parse_dates=['order_date'])
 
-path_file = 'dashboard/data/all_dataset.csv' # path prod
+# path_file = 'dashboard/data/all_dataset.csv' # path prod
 # path_file = 'data/all_dataset.csv' # path local
 
-all_data = load_data(path_file)
+all_data = load_data()
 
 st.title("diCommerce Dashboard")
 
@@ -33,29 +40,31 @@ max_date = all_data["order_purchase_timestamp"].max()
 
 with st.sidebar:
 
-    st.image(os.path.abspath('dashboard/img/logo.png'), width=280)
+    st.image(os.path.abspath('img/logo.png'), width=280)
     # st.image('img/logo.png', width=280)
 
     start_date, end_date = st.date_input(
-        label='Rentang Waktu',min_value=min_date,
+        label='Rentang Waktu',
+        min_value=min_date,
         max_value=max_date,
         value=[min_date, max_date]
     )
 
-main_df = all_data[(all_data["order_purchase_timestamp"] >= str(start_date)) & 
-                (all_data["order_purchase_timestamp"] <= str(end_date))]
+main_df = all_data[(all_data["order_date"] >= str(start_date)) &
+                (all_data["order_date"] <= str(end_date))]
 
     
 tab_customer, tab_product, tab_order = st.tabs(["Customer", "Product", "Order"])
 
 with tab_customer: # Customers
+
     # Figure Product RFM
     st.subheader('Best Customer Based on RFM Parameters (customer_id)')
 
     row1_col1, row1_col2, row1_col3 = st.columns(3, gap='medium')
     with row1_col1:
         fig_recency = px.bar(
-            rfm_analysis(all_data).sort_values(by="recency", ascending=True).head(), 
+            handler.rfm_analysis(main_df).sort_values(by="recency", ascending=True).head(), 
             y='recency',
             x='cust_id_short',
             title='By Recency (days)')
@@ -64,7 +73,7 @@ with tab_customer: # Customers
 
     with row1_col2:
         fig_frequency = px.bar(
-            rfm_analysis(main_df).sort_values(by="frequency", ascending=False).head(), 
+            handler.rfm_analysis(main_df).sort_values(by="frequency", ascending=False).head(), 
             y='frequency',
             x='cust_id_short',
             title='By Frequency')
@@ -73,7 +82,7 @@ with tab_customer: # Customers
 
     with row1_col3:
         fig_monetary = px.bar(
-            rfm_analysis(main_df).sort_values(by="monetary", ascending=False).head(), 
+            handler.rfm_analysis(main_df).sort_values(by="monetary", ascending=False).head(), 
             y='monetary',
             x='cust_id_short',
             title='By Monetary')
@@ -84,7 +93,7 @@ with tab_customer: # Customers
     with row2_col1:
         # Cust by states
         fig_cust_by_states = px.bar(
-            cust_by_states(main_df).head(20), 
+            handler.cust_by_states(main_df).head(20), 
             x='customer_state', 
             y='jumlah',
             title='Top 20 States With The Largest Customers')
@@ -93,7 +102,7 @@ with tab_customer: # Customers
 
     with row2_col2:
         fig_seller_by_states = px.bar(
-            seller_states(main_df).head(20), 
+            handler.seller_states(main_df).head(20), 
             x='seller_state', 
             y='jumlah',
             title='Top 20 States With The Largest Sellers')
@@ -104,7 +113,7 @@ with tab_customer: # Customers
     # Cust by cities
     with row3_col1:
         fig_cust_by_cities = px.bar(
-            cust_by_cities(main_df).head(10), 
+            handler.cust_by_cities(main_df).head(10), 
             x='jml_cust',
             y='customer_city',
             title='Top 10 Cities With The Largest Customer',
@@ -115,7 +124,7 @@ with tab_customer: # Customers
 
     with row3_col2:
         fig_seller_cities = px.bar(
-            seller_cities(main_df).head(10), 
+            handler.seller_cities(main_df).head(10), 
             x='jumlah',
             y='seller_city',
             title='Top 10 Cities With The Largest Sellers',
@@ -127,7 +136,7 @@ with tab_customer: # Customers
 with tab_product: # Products
     # Top 10 product category
     fig_top_product_cat = px.bar(
-        top_product_cat(main_df).head(10), 
+        handler.top_product_cat(main_df).head(10), 
         x='jumlah',
         y='product_category_name_english',
         title='Top 10 Products With The Largest Order',
@@ -141,11 +150,11 @@ with tab_product: # Products
 
 
     with col2:
-        st.dataframe(top_product_cat(main_df).iloc[11:,], hide_index=False)
+        st.dataframe(handler.top_product_cat(main_df).iloc[11:,], hide_index=False)
 
 
     # Figure Product Review 
-    fig_product_review = px.treemap(product_review(main_df), 
+    fig_product_review = px.treemap(handler.product_review(main_df), 
                                     path=[px.Constant("Product Score Review"), 'review_score', 'product_category_name_english'], 
                                     values='jumlah', 
                                     title='The Best Category Product Review')
@@ -155,7 +164,7 @@ with tab_product: # Products
 
 
 with tab_order: # Orders    
-    fig_status_order = px.pie(status_order(main_df), 
+    fig_status_order = px.pie(handler.status_order(main_df), 
                               values='jml', 
                               names='order_status', 
                               color_discrete_sequence=px.colors.sequential.RdBu,
@@ -170,7 +179,7 @@ with tab_order: # Orders
     with col2_filter:
         option_status = st.multiselect('Choose the status!', list(main_df.order_status.unique()), list(main_df.order_status.unique())[0])
 
-        fig_amount_of_order_status = px.line(amount_of_order_status(all_data, option_status, option_year), 
+        fig_amount_of_order_status = px.line(handler.amount_of_order_status(all_data, option_status, option_year), 
                 x="order_purch_month_year", 
                 y="jumlah", 
                 color="order_status", 

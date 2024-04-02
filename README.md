@@ -10,24 +10,34 @@ A dashboard to visualize the e-commerce public datasets. The dashboard was creat
  - Visualize of RFM (Recency, Frequency, Monetary) analysis 
 
 ## Prerequisite
-- Python (pandas, jupyter, plotly)
-- Streamlit (installation, deployment)
+- [Python (pandas, jupyter, plotly)](https://docs.python.org/)
+- [Streamlit (installation, deployment)](https://docs.streamlit.io/)
+- [Containerize (Docker)](https://docs.docker.com/)
+- Extract, Transform, Load (ETL)
 
 ## How to run
+### Clone Source Code
+Clone source code from [github](https://www.github.com)
+```
+$ mkdir app
+$ clone https://github.com/muhamadInsan/da-with-python-dicoding-submission.git
+$ cd app
+```
 ### Setup Environment
 I use pip to set up my environment (env), please use set up env that makes you easier.
-
+For windows:
 ```
-pyhton -m venv <env-name>
-<env-name>\scripts\activate
-
-pip install -r requirements.txt
+$ pyhton -m venv <env-name>
+$ <env-name>\scripts\activate
 ```
-
-### Run steamlit app
+For Unix/Linux
 ```
-cd dashboard
-streamlit run dashboard.py
+$ pyhton3 -m venv <env-name>
+$ source <env-name>/bin/activate
+```
+### Run App
+```
+$ docker-compose up
 ```
 Enjoy !!
 #

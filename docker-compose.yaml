@@ -1,0 +1,35 @@
+version: '3'
+name: my_pipeline1
+
+services:
+  db-clickhouse:
+    image: clickhouse/clickhouse-server:latest
+    ports:
+      - 8123:8123
+    environment:
+      - CLICKHOUSE_PASSWORD=${DB_PASSWORD}
+      - CLICKHOUSE_USER=${DB_USER}
+
+  etl:
+    build: ./etl
+    environment:
+      - DB_HOST=${DB_HOST}
+      - DB_PASSWORD=${DB_PASSWORD}
+      - DB_USER=${DB_USER}
+      - DB_PORT=${DB_PORT}
+    depends_on:
+      - db-clickhouse
+
+  dash-app:
+    build: ./dashboard
+    ports:
+      - 8501:8501
+    environment:
+      - DB_HOST=${DB_HOST}
+      - DB_PASSWORD=${DB_PASSWORD}
+      - DB_USER=${DB_USER}
+    depends_on:
+      - etl
+
+
+

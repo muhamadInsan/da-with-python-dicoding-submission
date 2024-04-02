@@ -1,3 +1,5 @@
 env-sub/
 notebook - Copy.ipynb
 plan.txt
+.env
+secrets
